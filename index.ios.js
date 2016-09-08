@@ -25,14 +25,25 @@ var SPRING_CONFIG = {tension: 2, friction: 3}; //Soft spring
 var AnimatedSquare = React.createClass({
   getInitialState: function() {
     return {
-        pan: new Animated.ValueXY()
+        pan: new Animated.ValueXY(),
+        op: new Animated.Value(0)
     };
   },
   componentDidMount: function() {
     this.startAndRepeat();
+    this.colorFade();
   },
   startAndRepeat: function() {
     this.triggerAnimation(this.startAndRepeat);
+  },
+  colorFade: function() {
+    Animated.timing(       // Uses easing functions
+      this.state.op, // The value to drive
+      {
+        toValue: 255,        // Target
+        duration: 2000,    // Configuration
+      },
+    ).start();
   },
   triggerAnimation: function(cb) {
     Animated.sequence([
@@ -55,8 +66,17 @@ var AnimatedSquare = React.createClass({
     ]).start(cb);
   },
   getStyle: function() {
+    var interpolatedColorAnimation = this.state.op.interpolate({
+        inputRange: [0, 255],
+        outputRange: ['rgba(20,200,130,1)', 'rgba(255,120,140, 1)']
+    });
+    //const c = `rgba(0, 0, ${ this.state.op }, 0)`;
+    console.log(this.state.op);
     return [
               styles.square,
+              {
+                backgroundColor: interpolatedColorAnimation
+              },
               {
                 transform: this.state.pan.getTranslateTransform()
               }
